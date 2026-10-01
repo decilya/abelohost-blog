@@ -35,7 +35,7 @@ enum SortOrder: string
     }
 
     /**
-     * Человекочитаемая метка для селекта в шаблоне.
+     * Человекочитаемое название для UI (селекта сортировки).
      */
     public function label(): string
     {
@@ -49,9 +49,7 @@ enum SortOrder: string
 
     /**
      * Безопасно парсит значение из query string.
-     *
-     * Невалидное значение (не из whitelist) откатывается в DateDesc -
-     * дефолтный порядок для блога.
+     * Если значение невалидное или null - возвращает DateDesc по умолчанию.
      */
     public static function fromRequest(?string $value): self
     {

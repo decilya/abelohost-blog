@@ -7,19 +7,10 @@ namespace App\Model;
 /**
  * Доменная модель категории.
  *
- * Иммутабельная: после создания свойства не меняются. Собирается из
- * строки БД через fromRow(). Никакой логики - только данные и хелперы
- * для представления.
+ * Иммутабельная (readonly), собирается из строки БД через fromRow().
  */
 final class Category
 {
-    /**
-     * @param int $id Идентификатор
-     * @param string $name Название категории
-     * @param string $slug URL-идентификатор для маршрута /category/{slug}
-     * @param string|null $description Описание или null
-     * @param string $createdAt Дата создания в формате MySQL TIMESTAMP
-     */
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -32,7 +23,7 @@ final class Category
     /**
      * Создаёт модель из строки БД.
      *
-     * @param array<string, mixed> $row Ассоциативный массив из PDO
+     * @param array<string, mixed> $row
      */
     public static function fromRow(array $row): self
     {

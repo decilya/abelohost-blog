@@ -7,26 +7,12 @@ namespace App\Model;
 /**
  * Доменная модель статьи.
  *
- * Иммутабельная. Отдельный метод withCategories() возвращает копию
- * с прикреплёнными категориями - вместо мутации поля categories.
- *
- * Содержит хелперы представления: URL изображения, форматирование даты
- * и просмотров. Это позволяет шаблонам оставаться лаконичными.
+ * Иммутабельная. Хранит связанные категории в свойстве $categories.
  */
 final class Article
 {
     /**
-     * @param int $id Идентификатор
-     * @param string $title Заголовок
-     * @param string $slug URL-идентификатор для маршрута /article/{slug}
-     * @param string|null $description Краткое описание
-     * @param string $content Полный текст статьи
-     * @param string|null $image Имя файла в public/uploads или null
-     * @param int $views Количество просмотров
-     * @param string $publishedAt Дата публикации
-     * @param string $createdAt Дата создания
-     * @param string $updatedAt Дата последнего обновления
-     * @param Category[] $categories Категории статьи (по умолчанию пусто)
+     * @param Category[] $categories
      */
     public function __construct(
         public readonly int $id,
@@ -46,9 +32,7 @@ final class Article
     /**
      * Создаёт модель из строки БД без категорий.
      *
-     * Категории прикрепляются отдельным запросом через withCategories().
-     *
-     * @param array<string, mixed> $row Ассоциативный массив из PDO
+     * @param array<string, mixed> $row
      */
     public static function fromRow(array $row): self
     {
@@ -68,9 +52,6 @@ final class Article
 
     /**
      * Возвращает копию статьи с прикреплёнными категориями.
-     *
-     * Иммутабельно: исходный объект не меняется. Это удобно, когда
-     * статьи кэшируются или передаются между слоями.
      *
      * @param Category[] $categories
      */
@@ -102,8 +83,8 @@ final class Article
     /**
      * URL изображения или встроенный SVG-placeholder.
      *
-     * Placeholder - data URI: не тянет внешние ресурсы, не даёт 404,
-     * не требует отдельной картинки-заглушки в репозитории.
+     * Placeholder - data URI, чтобы не зависеть от внешних сервисов
+     * и не отдавать 404, если изображения нет.
      */
     public function imageUrl(): string
     {
@@ -121,7 +102,7 @@ final class Article
     }
 
     /**
-     * Дата публикации в формате d.m.Y для отображения.
+     * Дата публикации в формате d.m.Y.
      */
     public function formattedDate(): string
     {
@@ -129,7 +110,7 @@ final class Article
     }
 
     /**
-     * Просмотры в компактном виде: 1234 -> 1.2K, 999 -> 999.
+     * Просмотры в компактном виде: 1234 -> 1.2K.
      */
     public function formattedViews(): string
     {
