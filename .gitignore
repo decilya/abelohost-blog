@@ -1,0 +1,31 @@
+# Composer
+/vendor/
+
+# Переменные окружения - коммитим только .env.example
+.env
+.env.local
+.env.*.local
+
+# Скомпилированный CSS из SCSS
+/public/css/*.css
+/public/css/*.css.map
+!/public/css/.gitkeep
+
+# Загруженные пользователем файлы
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# Логи и кэш рантайма
+/storage/logs/*.log
+!/storage/logs/.gitkeep
+/storage/smarty/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
