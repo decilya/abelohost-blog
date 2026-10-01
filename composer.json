@@ -10,12 +10,13 @@
     ],
     "require": {
         "php": "^8.1",
+        "ext-fileinfo": "*",
+        "ext-gd": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
         "ext-pdo": "*",
         "ext-pdo_mysql": "*",
-        "ext-mbstring": "*",
-        "ext-json": "*",
-        "ext-gd": "*",
-        "ext-fileinfo": "*",
+        "smarty/smarty": "^5.0",
         "vlucas/phpdotenv": "^5.6"
     },
     "autoload": {
@@ -38,7 +39,7 @@
         {
             "name": "packagist",
             "type": "composer",
-            "url": "https://mirrors.aliyun.com/composer/"
+            "url": "https://mirrors.cloud.tencent.com/composer/"
         }
-    ]
+        ]
 }
