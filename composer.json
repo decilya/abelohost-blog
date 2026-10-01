@@ -16,6 +16,7 @@
         "ext-mbstring": "*",
         "ext-pdo": "*",
         "ext-pdo_mysql": "*",
+        "scssphp/scssphp": "^1.12",
         "smarty/smarty": "^5.0",
         "vlucas/phpdotenv": "^5.6"
     },
@@ -37,9 +38,14 @@
     "prefer-stable": true,
     "repositories": [
         {
+            "name": "aliyun",
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer/"
+        },
+        {
             "name": "packagist",
             "type": "composer",
-            "url": "https://mirrors.cloud.tencent.com/composer/"
+            "url": "https://mirrors.aliyun.com/composer/"
         }
         ]
 }

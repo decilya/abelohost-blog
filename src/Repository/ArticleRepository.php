@@ -29,19 +29,6 @@ final class ArticleRepository implements ArticleRepositoryInterface
 
     /**
      * {@inheritDoc}
-     *
-     * Оконная функция MySQL 8.0+ ROW_NUMBER() OVER (PARTITION BY ...).
-     *
-     * Как работает:
-     * 1. PARTITION BY ac.category_id - нумерация сбрасывается для каждой категории
-     * 2. ORDER BY a.published_at DESC, a.id DESC - статьи внутри категории
-     *    нумеруются от самой новой к старой; id как tie-breaker
-     * 3. Внешний WHERE rn <= N - оставляем только топ-N в каждой категории
-     *
-     * Почему так, а не циклом:
-     * Наивный подход требует 1 запрос на категории + N запросов на статьи
-     * (проблема N+1). Оконная функция решает задачу одним запросом,
-     * делегируя фильтрацию "топ-N на группу" движку БД.
      */
     public function getLatestPerCategory(int $perCategory = 3): array
     {
@@ -78,10 +65,6 @@ final class ArticleRepository implements ArticleRepositoryInterface
 
     /**
      * {@inheritDoc}
-     *
-     * SQL-фрагмент ORDER BY берётся из SortOrder::toSql() - это whitelist.
-     * Пользовательский ввод физически не может попасть в ORDER BY,
-     * инъекция невозможна.
      */
     public function findPaginatedByCategory(
         int $categoryId,
@@ -122,7 +105,6 @@ final class ArticleRepository implements ArticleRepositoryInterface
 
         $article = Article::fromRow($row);
 
-        // Отдельный запрос за категориями проще и надёжнее, чем GROUP_CONCAT + парсинг.
         $catStmt = $this->pdo->prepare(
             'SELECT c.* FROM categories c
              INNER JOIN article_category ac ON ac.category_id = c.id
@@ -137,12 +119,6 @@ final class ArticleRepository implements ArticleRepositoryInterface
 
     /**
      * {@inheritDoc}
-     *
-     * Атомарный инкремент на стороне БД. Не требует транзакции,
-     * так как выполняется одним оператором UPDATE.
-     * Race conditions невозможны: два одновременных UPDATE оба
-     * прочитают старое значение и прибавят 1, но MySQL сериализует
-     * запись на уровне строки.
      */
     public function incrementViews(int $articleId): int
     {
@@ -158,10 +134,10 @@ final class ArticleRepository implements ArticleRepositoryInterface
     /**
      * {@inheritDoc}
      *
-     * Считаем число общих категорий и сортируем по убыванию.
-     * GROUP BY a.id корректен под ONLY_FULL_GROUP_BY в MySQL 8,
-     * так как все выбираемые колонки функционально зависят от
-     * первичного ключа a.id.
+     * ВАЖНО: при ATTR_EMULATE_PREPARES = false MySQL не позволяет использовать
+     * один именованный плейсхолдер дважды - на каждое вхождение нужен свой
+     * бинд. Поэтому :article_id_sub и :article_id - разные параметры
+     * с одним значением.
      */
     public function findSimilar(int $articleId, int $limit = 3): array
     {
@@ -170,7 +146,7 @@ final class ArticleRepository implements ArticleRepositoryInterface
             FROM articles a
             INNER JOIN article_category ac ON ac.article_id = a.id
             WHERE ac.category_id IN (
-                SELECT category_id FROM article_category WHERE article_id = :article_id
+                SELECT category_id FROM article_category WHERE article_id = :article_id_sub
             )
               AND a.id <> :article_id
             GROUP BY a.id
@@ -179,6 +155,7 @@ final class ArticleRepository implements ArticleRepositoryInterface
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':article_id_sub', $articleId, PDO::PARAM_INT);
         $stmt->bindValue(':article_id', $articleId, PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
