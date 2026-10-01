@@ -41,6 +41,10 @@ WORKDIR /var/www/html
 RUN mkdir -p storage/logs public/uploads public/css \
     && chown -R www-data:www-data storage public/uploads public/css
 
+# Git в контейнере не доверяет папке проекта из bind-mount (UID не совпадает).
+# Разрешаем работу с ней для всех пользователей контейнера.
+RUN git config --system --add safe.directory /var/www/html
+
 USER www-data
 
 EXPOSE 9000

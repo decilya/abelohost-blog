@@ -4,13 +4,15 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     container_name: blog_php
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+      - net.ipv6.conf.default.disable_ipv6=1
     volumes:
       - ./:/var/www/html:cached
     working_dir: /var/www/html
     depends_on:
       mysql:
         condition: service_healthy
-
   nginx:
     image: nginx:1.27-alpine
     container_name: blog_nginx
