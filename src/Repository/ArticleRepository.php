@@ -27,7 +27,6 @@ final class ArticleRepository implements ArticleRepositoryInterface
         $this->pdo = $connection->pdo();
     }
 
-
     /**
      * {@inheritDoc}
      *
@@ -41,7 +40,7 @@ final class ArticleRepository implements ArticleRepositoryInterface
      *
      * Почему так, а не циклом:
      * Наивный подход требует 1 запрос на категории + N запросов на статьи
-     * (проблема N+1). Оконная функция решает задачу одним запросом (!!!),
+     * (проблема N+1). Оконная функция решает задачу одним запросом,
      * делегируя фильтрацию "топ-N на группу" движку БД.
      */
     public function getLatestPerCategory(int $perCategory = 3): array
@@ -63,8 +62,6 @@ final class ArticleRepository implements ArticleRepositoryInterface
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
-
-        // В Connection::createPdo() PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION --> проверка на true/false не нужна
         $stmt->bindValue(':per_category', $perCategory, PDO::PARAM_INT);
         $stmt->execute();
 
